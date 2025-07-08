@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres
+    container_name: profile_db
+    environment:
+      POSTGRES_DB: "profiles"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "1"
+    ports:
+      - "5432:5432"
