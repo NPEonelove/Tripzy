@@ -1,15 +1,15 @@
-package com.meowlove.profileservice.model;
+package com.meowlove.authservice.model;
 
 import lombok.Getter;
 
 @Getter
-public enum ProfileRoleEnum {
+public enum UserRoleEnum {
     ADMIN("ADMIN"),
     USER("USER");
 
     private final String value;
 
-    ProfileRoleEnum(String value) {
+    UserRoleEnum(String value) {
         this.value = value;
     }
 }

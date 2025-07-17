@@ -1,11 +1,95 @@
 version: "3.9"
+
 services:
-  postgres:
+  profile_db:
     image: postgres
     container_name: profile_db
     environment:
       POSTGRES_DB: "profiles"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "1"
+    networks:
+      - tripzy-network
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  auth_db:
+    image: postgres
+    container_name: auth_db
+    environment:
+      POSTGRES_DB: "users"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "1"
+    networks:
+      - tripzy-network
+    ports:
+      - "5433:5432"
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    networks:
+      - tripzy-network
+    ports:
+      - "8761:8761"
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    environment:
+      SERVER_PORT: 8080
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+      JWT_SECRET_KEY: "s7k5n2x9r1v6y8w4z7u5i3o9l2p5n0x3r1v6y8w4z7u5i3o9l2p5n0x3"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    networks:
+      - tripzy-network
+
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: auth-service
+    environment:
+      SERVER_PORT: 8084
+      JWT_SECRET_KEY: "s7k5n2x9r1v6y8w4z7u5i3o9l2p5n0x3r1v6y8w4z7u5i3o9l2p5n0x3"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://auth_db:5432/users"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "1"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+    ports:
+      - "8084:8084"
+    depends_on:
+      - auth_db
+      - eureka-server
+    networks:
+      - tripzy-network
+
+  profile-service:
+    build:
+      context: ./profile-service
+    container_name: profile-service
+    environment:
+      SERVER_PORT: 8083
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://profile_db:5432/profiles"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "1"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+    ports:
+      - "8083:8083"
+    depends_on:
+      - profile_db
+      - eureka-server
+    networks:
+      - tripzy-network
+
+networks:
+  tripzy-network:
+    driver: bridge
+
+volumes:
+  postgres-data:

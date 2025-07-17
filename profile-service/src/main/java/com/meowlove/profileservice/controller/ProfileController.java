@@ -1,10 +1,10 @@
 package com.meowlove.profileservice.controller;
 
 import com.meowlove.profileservice.dto.profile.*;
-import com.meowlove.profileservice.exception.profile.ProfilePasswordValidationException;
 import com.meowlove.profileservice.exception.profile.ProfileValidationException;
-import com.meowlove.profileservice.model.Profile;
 import com.meowlove.profileservice.service.ProfileService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,11 +18,15 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/profiles")
+@Tag(name = "Profiles API", description = "API для управления данными профилей. " +
+        "Все запросы требуют авторизации")
 public class ProfileController {
 
     private final ProfileService profileService;
 
-    // создание профиля (для сервиса аунтетификации)
+    @Operation(
+            summary = "Создание нового профиля"
+    )
     @PostMapping()
     public ResponseEntity<CreateProfileResponseDTO> createProfile(@RequestBody @Valid CreateProfileRequestDTO createProfileRequestDTO,
                                                                   BindingResult bindingResult) {
@@ -33,25 +37,17 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.createProfile(createProfileRequestDTO));
     }
 
-    // редактирование пароля (для сервиса аутентификации)
-    @PatchMapping("/{uuid}/credentials")
-    public ResponseEntity<UpdateProfilePasswordResponseDTO> updateProfilePassword(@PathVariable("uuid") String uuid,
-                                                                                  @RequestBody @Valid UpdateProfilePasswordRequestDTO updateProfilePasswordRequestDTO,
-                                                                                  BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ProfilePasswordValidationException(validateBindingResult(bindingResult).toString());
-        }
-
-        return ResponseEntity.ok(profileService.updateProfilePassword(UUID.fromString(uuid), updateProfilePasswordRequestDTO));
-    }
-
-    // получение профиля для страницы профиля
+    @Operation(
+            summary = "Получение данных профиля"
+    )
     @GetMapping("/{uuid}")
     public ResponseEntity<GetProfileOverviewResponseDTO> getProfile(@PathVariable("uuid") String uuid) {
         return ResponseEntity.ok(profileService.getProfileOverview(UUID.fromString(uuid)));
     }
 
-    // редактирование профиля (без credentials)
+    @Operation(
+            summary = "Редактирование данных профиля"
+    )
     @PatchMapping("/{uuid}")
     public ResponseEntity<UpdateProfileResponseDTO> updateProfile(@PathVariable("uuid") String uuid,
                                                                   @RequestBody @Valid UpdateProfileRequestDTO updateProfileRequestDTO,
@@ -63,7 +59,9 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.updateProfile(UUID.fromString(uuid), updateProfileRequestDTO));
     }
 
-    // удаление профиля
+    @Operation(
+            summary = "Удаление профиля"
+    )
     @DeleteMapping("/{uuid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProfile(@PathVariable("uuid") String uuid) {
@@ -79,6 +77,5 @@ public class ProfileController {
         }
         return errors;
     }
-
 
 }

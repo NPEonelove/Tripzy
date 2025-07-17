@@ -1,13 +1,13 @@
 package com.meowlove.profileservice.service;
 
 import com.meowlove.profileservice.dto.profile.*;
-import com.meowlove.profileservice.exception.profile.EmailNotUniqueException;
-import com.meowlove.profileservice.exception.profile.IncorrectPasswordException;
 import com.meowlove.profileservice.exception.profile.ProfileNotFoundException;
+import com.meowlove.profileservice.exception.profile.UserIDNotUniqueException;
 import com.meowlove.profileservice.exception.profile.UsernameNotUniqueException;
+import com.meowlove.profileservice.exception.security.PermissionDeniedException;
 import com.meowlove.profileservice.model.Profile;
-import com.meowlove.profileservice.model.ProfileRoleEnum;
 import com.meowlove.profileservice.repository.ProfileRepository;
+import com.meowlove.profileservice.security.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -21,66 +21,46 @@ import java.util.UUID;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
+    private final SecurityService securityService;
     private final ModelMapper modelMapper;
 
     /// создание профиля (для сервиса аунтетификации)
     @Transactional
     public CreateProfileResponseDTO createProfile(CreateProfileRequestDTO createProfileRequestDTO) {
 
-        if (!isEmailUnique(createProfileRequestDTO.getEmail())) {
-            throw new EmailNotUniqueException("Email already exists");
-        }
-
         if (!isUsernameUnique(createProfileRequestDTO.getUsername())) {
             throw new UsernameNotUniqueException("The username is already in use");
         }
 
-        Profile profile = new Profile();
+        UUID userId = securityService.getUUIDFromSecurityContext();
 
-        profile.setEmail(createProfileRequestDTO.getEmail());
-        profile.setPassword(createProfileRequestDTO.getPassword());
-        profile.setUsername(createProfileRequestDTO.getUsername());
-        profile.setNickname("User " + createProfileRequestDTO.getUsername());
-        profile.setAge(createProfileRequestDTO.getAge());
-        profile.setRole(ProfileRoleEnum.USER);
-
-        profile = profileRepository.save(profile);
-
-        CreateProfileResponseDTO createProfileResponseDTO = new CreateProfileResponseDTO();
-
-        createProfileResponseDTO.setProfileId(profile.getProfileId());
-        createProfileResponseDTO.setRole(profile.getRole());
-
-        return createProfileResponseDTO;
-    }
-
-    // редактирование пароля (для сервиса аутентификации)
-    @Transactional
-    public UpdateProfilePasswordResponseDTO updateProfilePassword(UUID profileId,
-                                                  UpdateProfilePasswordRequestDTO updateProfilePasswordRequestDTO) {
-        Profile profile = getProfile(profileId);
-
-        if (!profile.getPassword().equals(updateProfilePasswordRequestDTO.getOldPassword())) {
-            throw new IncorrectPasswordException("Old password doesn't match");
+        if (!isUserIdUnique(userId)) {
+            throw new UserIDNotUniqueException("The userId is already in use");
         }
 
-        profile.setPassword(updateProfilePasswordRequestDTO.getNewPassword());
-        return modelMapper.map(profileRepository.save(profile), UpdateProfilePasswordResponseDTO.class);
+        Profile profile = new Profile();
+
+        profile.setUserId(userId);
+        profile.setUsername(createProfileRequestDTO.getUsername());
+        profile.setNickname(createProfileRequestDTO.getNickname());
+        profile.setAge(createProfileRequestDTO.getAge());
+
+        return modelMapper.map(profileRepository.save(profile), CreateProfileResponseDTO.class);
     }
 
     // получение профиля для страницы профиля
     public GetProfileOverviewResponseDTO getProfileOverview(UUID profileId) {
-        Profile profile = profileRepository.findProfileByProfileId(profileId).orElseThrow(
-                () -> new ProfileNotFoundException("Profile with id " + profileId.toString() + " not found")
-        );
+        Profile profile = getProfile(profileId);
         return modelMapper.map(profile, GetProfileOverviewResponseDTO.class);
     }
 
-    // редактирование профиля (без credentials)
+    // редактирование профиля
     @Transactional
     public UpdateProfileResponseDTO updateProfile(UUID profileId,
                                                   UpdateProfileRequestDTO updateProfileRequestDTO) {
         Profile profile = getProfile(profileId);
+
+        verifyProfileOwner(profile.getUserId());
 
         if (!isUsernameUnique(updateProfileRequestDTO.getUsername()) &&
         !updateProfileRequestDTO.getUsername().equals(profile.getUsername())) {
@@ -98,6 +78,9 @@ public class ProfileService {
     @Transactional
     public void deleteProfile(UUID profileId) {
         Profile profile = getProfile(profileId);
+
+        verifyProfileOwner(profile.getUserId());
+
         profileRepository.delete(profile);
     }
 
@@ -112,9 +95,15 @@ public class ProfileService {
         return !profileRepository.existsProfileByUsername(username);
     }
 
-    // проферка уникальности емаила (для создания профиля)
-    private Boolean isEmailUnique(String email) {
-        return !profileRepository.existsProfileByEmail(email);
+    // проверка уникальности user id (для создания профиля)
+    private Boolean isUserIdUnique(UUID userId) {
+        return !profileRepository.existsProfileByUserId(userId);
     }
 
+    // проверка владельца профиля
+    private void verifyProfileOwner(UUID userId) {
+        if (!securityService.getUUIDFromSecurityContext().equals(userId)) {
+            throw new PermissionDeniedException("Permission denied");
+        }
+    }
 }

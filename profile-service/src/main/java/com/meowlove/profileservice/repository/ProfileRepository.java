@@ -12,7 +12,7 @@ public interface ProfileRepository extends JpaRepository<Profile, UUID> {
 
     boolean existsProfileByUsername(String username);
 
-    boolean existsProfileByEmail(String email);
-
     Optional<Profile> findProfileByProfileId(UUID profileId);
+
+    Boolean existsProfileByUserId(UUID userId);
 }

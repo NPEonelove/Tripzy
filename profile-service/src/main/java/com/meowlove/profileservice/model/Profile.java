@@ -1,12 +1,13 @@
 package com.meowlove.profileservice.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -24,11 +25,8 @@ public class Profile {
     @Column(name = "profile_id")
     private UUID profileId;
 
-    @Column(name = "email")
-    private String email;
-
-    @Column(name = "password")
-    private String password;
+    @Column(name = "user_id")
+    private UUID userId;
 
     @Column(name = "username")
     private String username;
@@ -41,12 +39,5 @@ public class Profile {
 
     @Column(name = "photo_link")
     private String photoLink;
-
-    @Column(name = "role")
-    @Enumerated(EnumType.STRING)
-    private ProfileRoleEnum role;
-
-    @Column(name = "registration_date")
-    private LocalDateTime registrationDate;
 
 }

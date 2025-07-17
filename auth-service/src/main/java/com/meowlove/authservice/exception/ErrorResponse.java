@@ -1,4 +1,4 @@
-package com.meowlove.profileservice.exception.profile;
+package com.meowlove.authservice.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ProfileErrorResponse {
+public class ErrorResponse {
     int statusCode;
     String error;
     String message;
