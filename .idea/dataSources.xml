@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="profiles@localhost" uuid="fb834bdf-6531-4223-a97c-5d0d03557042">
+    <data-source source="LOCAL" name="users@localhost" uuid="af9290b9-3a0e-48f5-a0be-534757eeb625">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/profiles</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5433/users</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
@@ -13,11 +13,11 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="users@localhost" uuid="6c7b369f-b6c3-4a31-834a-64a2d9eae203">
+    <data-source source="LOCAL" name="profiles@localhost" uuid="cbf6f305-da80-4a82-974a-d5417d49d113">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5433/users</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/profiles</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />

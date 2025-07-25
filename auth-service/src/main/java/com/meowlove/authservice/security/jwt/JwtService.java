@@ -24,6 +24,12 @@ public class JwtService {
     @Value("${jwt.secret-key}")
     private String jwtSecretKey;
 
+    @Value("${access-token.ttl}")
+    private int accessTokenTtl;
+
+    @Value("${refresh-token.ttl}")
+    private int refreshTokenTtl;
+
     private final UserService userService;
 
     // получение access и refresh токена
@@ -46,8 +52,7 @@ public class JwtService {
     private String generateAccessToken(UUID userId) {
         GetJwtUserClaimsResponseDTO user = userService.getJwtUserClaims(userId);
 
-        // only for dev
-        Date date = Date.from(LocalDateTime.now().plusDays(30)
+        Date date = Date.from(LocalDateTime.now().plusMinutes(accessTokenTtl)
                 .atZone(ZoneId.systemDefault()).toInstant());
 
         return Jwts.builder()
@@ -62,7 +67,7 @@ public class JwtService {
     private String generateRefreshToken(UUID userId) {
         GetJwtUserClaimsResponseDTO user = userService.getJwtUserClaims(userId);
 
-        Date date = Date.from(LocalDateTime.now().plusYears(1)
+        Date date = Date.from(LocalDateTime.now().plusYears(refreshTokenTtl)
                 .atZone(ZoneId.systemDefault()).toInstant());
 
         return Jwts.builder()

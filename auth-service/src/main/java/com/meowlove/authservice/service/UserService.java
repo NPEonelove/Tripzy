@@ -27,10 +27,4 @@ public class UserService {
         return userRepository.findUserByUserId(userId).orElseThrow(
                 () -> new UserNotFoundException("User with id " + userId.toString() + " not found"));
     }
-
-    // проверка уникальности email
-    public Boolean isEmailUnique(String email) {
-        return !userRepository.existsUserByEmail(email);
-    }
-
 }

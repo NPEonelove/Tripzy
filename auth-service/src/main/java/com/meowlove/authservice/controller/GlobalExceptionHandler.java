@@ -110,5 +110,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(SignOutException.class)
+    public ResponseEntity<ErrorResponse> handleSignOut(SignOutException ex) {
+        return ResponseEntity.badRequest().body(
+                new ErrorResponse(
+                        HttpStatus.CONFLICT.value(),
+                        "Sign Out Exception",
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                )
+        );
+    }
+
 
 }

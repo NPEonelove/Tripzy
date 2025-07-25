@@ -27,6 +27,12 @@ services:
     ports:
       - "5433:5432"
 
+  revoked_tokens:
+    image: redis
+    container_name: revoked_tokens
+    ports:
+      - "6379:6379"
+
   eureka-server:
     build: ./eureka-server
     container_name: eureka-server

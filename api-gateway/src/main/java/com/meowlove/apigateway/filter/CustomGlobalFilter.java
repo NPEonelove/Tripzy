@@ -1,5 +1,6 @@
 package com.meowlove.apigateway.filter;
 
+import com.meowlove.apigateway.exception.JwtValidationException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -34,9 +35,11 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
         String accessToken = exchange.getRequest().getHeaders().getFirst("Authorization");
 
+
         if (StringUtils.hasText(accessToken) &&
                 accessToken.startsWith("Bearer ")) {
             accessToken = accessToken.substring(7);
+            validateJwtToken(accessToken);
         } else {
             throw new JwtException("Incorrect token");
         }
@@ -68,14 +71,12 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     }
 
     // валидация jwt токена
-    public boolean validateJwtToken(String token) {
+    public void validateJwtToken(String token) {
         try {
             getClaimsFromAccessToken(token);
         } catch (Exception e) {
-            return false;
+            throw new JwtValidationException("Invalid JWT token");
         }
-
-        return true;
     }
 
     // получение payload из access токена

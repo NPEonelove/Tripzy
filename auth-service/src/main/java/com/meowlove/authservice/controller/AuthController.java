@@ -53,14 +53,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.signIn(userCredentialsRequestDTO));
     }
 
-    // TODO: сделать выход из аккаунта
     @Operation(
             summary = "Выход из аккаунта пользователя",
-            description = "Требует авторизованного запроса. Пока что это метод затычка."
+            description = "Требует авторизованного запроса"
     )
     @PostMapping("/sign-out")
-    public ResponseEntity<Boolean> signOut() {
-        return ResponseEntity.ok(true);
+    public ResponseEntity<Boolean> signOut(@RequestBody RefreshTokenDTO refreshTokenDTO) {
+        return ResponseEntity.ok(authService.signOut(refreshTokenDTO));
     }
 
     @Operation(

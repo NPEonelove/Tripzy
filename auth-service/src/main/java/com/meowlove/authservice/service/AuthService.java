@@ -6,6 +6,7 @@ import com.meowlove.authservice.dto.user.ChangePasswordRequestDTO;
 import com.meowlove.authservice.dto.user.ChangePasswordResponseDTO;
 import com.meowlove.authservice.dto.user.UserCredentialsRequestDTO;
 import com.meowlove.authservice.exception.EmailNotUniqueException;
+import com.meowlove.authservice.exception.SignOutException;
 import com.meowlove.authservice.exception.PasswordChangeException;
 import com.meowlove.authservice.exception.UserNotFoundException;
 import com.meowlove.authservice.model.User;
@@ -16,6 +17,8 @@ import com.meowlove.authservice.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.websocket.AuthenticationException;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,12 +37,16 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    @Value("${refresh-token.ttl}")
+    private int refreshTokenTtl;
 
     // регистрация пользователя
     @Transactional
     public JwtAuthenticationDTO signUp(UserCredentialsRequestDTO userCredentialsRequestDTO) {
 
-        if (!userService.isEmailUnique(userCredentialsRequestDTO.getEmail())) {
+        if (!isEmailUnique(userCredentialsRequestDTO.getEmail())) {
             throw new EmailNotUniqueException("Email already exists");
         }
 
@@ -54,8 +61,6 @@ public class AuthService {
 
         userRepository.save(user);
 
-        System.out.println(user.getUserId().toString());
-
         return jwtService.generateAuthToken(user.getUserId());
     }
 
@@ -66,11 +71,23 @@ public class AuthService {
         User user = userRepository.findUserByEmail(userCredentialsRequestDTO.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User with email " + userCredentialsRequestDTO.getEmail() + " not found"));
 
-        if (passwordEncoder.matches(userCredentialsRequestDTO.getPassword(), user.getPassword())) {
-            return jwtService.generateAuthToken(user.getUserId());
+        if (!passwordEncoder.matches(userCredentialsRequestDTO.getPassword(), user.getPassword())) {
+            throw new AuthenticationException("Invalid password");
         }
 
-        throw new AuthenticationException("Invalid password");
+        return jwtService.generateAuthToken(user.getUserId());
+    }
+
+    // выход из аккаунта пользователя
+    @Transactional
+    public Boolean signOut(RefreshTokenDTO refreshTokenDTO) {
+
+        if (redisTemplate.hasKey(refreshTokenDTO.getRefreshToken())) {
+            throw new SignOutException("Refresh token already expired");
+        }
+
+        redisTemplate.opsForValue().set(refreshTokenDTO.getRefreshToken(), "1", refreshTokenTtl);
+        return Boolean.TRUE;
     }
 
     // обновление пароля пользователя
@@ -98,12 +115,22 @@ public class AuthService {
 
     // генерация access токена по refresh токену
     public JwtAuthenticationDTO refreshAccessToken(RefreshTokenDTO refreshTokenDTO) throws AuthenticationException {
+
+        if (redisTemplate.hasKey(refreshTokenDTO.getRefreshToken())) {
+            throw new AuthenticationException("Refresh token is already expired");
+        }
+
         String refreshToken = refreshTokenDTO.getRefreshToken();
         if (refreshToken != null && jwtService.validateJwtToken(refreshToken)) {
             User user = userService.getUserByUUID(UUID.fromString(jwtService.getUserIdFromJwtToken(refreshToken)));
             return jwtService.refreshAccessToken(user.getUserId(), refreshToken);
         }
         throw new AuthenticationException("Invalid refresh token");
+    }
+
+    // проверка уникальности email
+    private Boolean isEmailUnique(String email) {
+        return !userRepository.existsUserByEmail(email);
     }
 
 }
