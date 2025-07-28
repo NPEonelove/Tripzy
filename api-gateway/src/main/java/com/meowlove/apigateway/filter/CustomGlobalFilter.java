@@ -13,6 +13,7 @@ import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -34,7 +35,6 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         }
 
         String accessToken = exchange.getRequest().getHeaders().getFirst("Authorization");
-
 
         if (StringUtils.hasText(accessToken) &&
                 accessToken.startsWith("Bearer ")) {
