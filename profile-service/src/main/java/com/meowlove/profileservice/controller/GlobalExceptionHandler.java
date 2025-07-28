@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -122,6 +123,18 @@ public class GlobalExceptionHandler {
                 new ErrorResponse(
                         HttpStatus.BAD_REQUEST.value(),
                         "Incorrect JSON format",
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                )
+        );
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
+        return ResponseEntity.badRequest().body(
+                new ErrorResponse(
+                        HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
+                        "Unsupported Media Type",
                         ex.getMessage(),
                         LocalDateTime.now()
                 )
