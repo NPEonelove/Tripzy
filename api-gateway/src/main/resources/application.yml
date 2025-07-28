@@ -15,7 +15,6 @@ spring:
             allow-credentials: true
       server:
         webflux:
-
           discovery:
             locator:
               enabled: true
