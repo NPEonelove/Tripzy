@@ -9,15 +9,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.time.LocalDateTime;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+
+
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 new ErrorResponse(
                         HttpStatus.UNAUTHORIZED.value(),
                         "Auth exception",
@@ -29,7 +32,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUsernameNotFound(UsernameNotFoundException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ErrorResponse(
                         HttpStatus.NOT_FOUND.value(),
                         "User not found",
