@@ -20,11 +20,22 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private final HttpStatus usernameNotUniqueStatus = HttpStatus.CONFLICT;
+    private final HttpStatus profileValidationStatus = HttpStatus.BAD_REQUEST;
+    private final HttpStatus profileNotFoundStatus = HttpStatus.NOT_FOUND;
+    private final HttpStatus incorrectUUIDStatus = HttpStatus.BAD_REQUEST;
+    private final HttpStatus missingAuthHeadersStatus = HttpStatus.UNAUTHORIZED;
+    private final HttpStatus authCredentialsNotFoundStatus = HttpStatus.UNAUTHORIZED;
+    private final HttpStatus permissionDeniedStatus = HttpStatus.UNAUTHORIZED;
+    private final HttpStatus userIDNotUniqueStatus = HttpStatus.CONFLICT;
+    private final HttpStatus httpMessageNotReadableStatus = HttpStatus.BAD_REQUEST;
+    private final HttpStatus httpMediaTypeNotSupportedStatus = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+
     @ExceptionHandler(UsernameNotUniqueException.class)
     public ResponseEntity<ErrorResponse> handleUsernameNotUnique(UsernameNotUniqueException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(usernameNotUniqueStatus).body(
                 new ErrorResponse(
-                        HttpStatus.CONFLICT.value(),
+                        usernameNotUniqueStatus.value(),
                         "Username unique conflict",
                         ex.getMessage(),
                         LocalDateTime.now()
@@ -34,9 +45,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProfileValidationException.class)
     public ResponseEntity<ErrorResponse> handleProfileValidation(ProfileValidationException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(profileValidationStatus).body(
                 new ErrorResponse(
-                        HttpStatus.BAD_REQUEST.value(),
+                        profileValidationStatus.value(),
                         "Profile validation conflict",
                         ex.getMessage(),
                         LocalDateTime.now()
@@ -46,9 +57,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProfileNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleProfileNotFound(ProfileNotFoundException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(profileNotFoundStatus).body(
                 new ErrorResponse(
-                        HttpStatus.NOT_FOUND.value(),
+                        profileNotFoundStatus.value(),
                         "Profile not found",
                         ex.getMessage(),
                         LocalDateTime.now()
@@ -56,12 +67,11 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // TODO: сделать корректную обработку исключений некорректного UUID
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIncorrectUUID(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(incorrectUUIDStatus).body(
                 new ErrorResponse(
-                        HttpStatus.BAD_REQUEST.value(),
+                        incorrectUUIDStatus.value(),
                         "Incorrect UUID",
                         ex.getMessage(),
                         LocalDateTime.now()
@@ -71,9 +81,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingAuthHeadersException.class)
     public ResponseEntity<ErrorResponse> handleMissingAuthHeaders(MissingAuthHeadersException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(missingAuthHeadersStatus).body(
                 new ErrorResponse(
-                        HttpStatus.UNAUTHORIZED.value(),
+                        missingAuthHeadersStatus.value(),
                         "Missing Auth Headers",
                         ex.getMessage(),
                         LocalDateTime.now()
@@ -83,9 +93,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationCredentialsNotFound(AuthenticationCredentialsNotFoundException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(authCredentialsNotFoundStatus).body(
                 new ErrorResponse(
-                        HttpStatus.UNAUTHORIZED.value(),
+                        authCredentialsNotFoundStatus.value(),
                         "Authentication Credentials not found",
                         ex.getMessage(),
                         LocalDateTime.now()
@@ -95,9 +105,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PermissionDeniedException.class)
     public ResponseEntity<ErrorResponse> handlePermissionDenied(PermissionDeniedException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(permissionDeniedStatus).body(
                 new ErrorResponse(
-                        HttpStatus.UNAUTHORIZED.value(),
+                        permissionDeniedStatus.value(),
                         "Permission denied",
                         ex.getMessage(),
                         LocalDateTime.now()
@@ -107,9 +117,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserIDNotUniqueException.class)
     public ResponseEntity<ErrorResponse> handleUserIDNotUnique(UserIDNotUniqueException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(userIDNotUniqueStatus).body(
                 new ErrorResponse(
-                        HttpStatus.CONFLICT.value(),
+                        userIDNotUniqueStatus.value(),
                         "UserId unique conflict",
                         ex.getMessage(),
                         LocalDateTime.now()
@@ -119,9 +129,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(httpMessageNotReadableStatus).body(
                 new ErrorResponse(
-                        HttpStatus.BAD_REQUEST.value(),
+                        httpMessageNotReadableStatus.value(),
                         "Incorrect JSON format",
                         ex.getMessage(),
                         LocalDateTime.now()
@@ -131,14 +141,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(httpMediaTypeNotSupportedStatus).body(
                 new ErrorResponse(
-                        HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
+                        httpMediaTypeNotSupportedStatus.value(),
                         "Unsupported Media Type",
                         ex.getMessage(),
                         LocalDateTime.now()
                 )
         );
     }
-
 }

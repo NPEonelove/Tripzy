@@ -13,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-profile-data:/var/lib/postgresql/data
 
   auth_db:
     image: postgres
@@ -26,12 +26,16 @@ services:
       - tripzy-network
     ports:
       - "5433:5432"
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
 
   revoked_tokens:
     image: redis
     container_name: revoked_tokens
     ports:
       - "6379:6379"
+    volumes:
+      - redis-data:/data
 
   eureka-server:
     build: ./eureka-server
@@ -98,4 +102,6 @@ networks:
     driver: bridge
 
 volumes:
-  postgres-data:
+  postgres-profile-data:
+  postgres-auth-data:
+  redis-data:

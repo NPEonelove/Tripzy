@@ -5,7 +5,6 @@ import com.meowlove.apigateway.exception.JwtValidationException;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -14,11 +13,14 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private final HttpStatus expiredJwtStatus = HttpStatus.FORBIDDEN;
+    private final HttpStatus jwtValidationStatus = HttpStatus.FORBIDDEN;
+
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ErrorResponse> handleExpiredJwt(ExpiredJwtException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(expiredJwtStatus).body(
                 new ErrorResponse(
-                        HttpStatus.UNAUTHORIZED.value(),
+                        expiredJwtStatus.value(),
                         "Jwt expired",
                         ex.getMessage(),
                         LocalDateTime.now()
@@ -28,9 +30,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(JwtValidationException.class)
     public ResponseEntity<ErrorResponse> handleJwtValidation(JwtValidationException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(jwtValidationStatus).body(
                 new ErrorResponse(
-                        HttpStatus.UNAUTHORIZED.value(),
+                        jwtValidationStatus.value(),
                         "Jwt validation error",
                         ex.getMessage(),
                         LocalDateTime.now()

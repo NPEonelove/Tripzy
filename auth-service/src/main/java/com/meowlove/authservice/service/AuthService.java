@@ -121,10 +121,12 @@ public class AuthService {
         }
 
         String refreshToken = refreshTokenDTO.getRefreshToken();
+
         if (refreshToken != null && jwtService.validateJwtToken(refreshToken)) {
             User user = userService.getUserByUUID(UUID.fromString(jwtService.getUserIdFromJwtToken(refreshToken)));
             return jwtService.refreshAccessToken(user.getUserId(), refreshToken);
         }
+
         throw new AuthenticationException("Invalid refresh token");
     }
 
