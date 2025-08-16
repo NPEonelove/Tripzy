@@ -12,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.StringReader;
 import java.util.UUID;
 
 @RestController
@@ -57,6 +59,15 @@ public class ProfileController {
         }
 
         return ResponseEntity.ok(profileService.updateProfile(UUID.fromString(uuid), updateProfileRequestDTO));
+    }
+
+    @Operation(
+            summary = "Обновление фотографии профиля"
+    )
+    @PatchMapping("/{uuid}/upload-image")
+    public ResponseEntity<String> uploadProfileImage(@PathVariable("uuid") String uuid,
+                                                     @RequestParam(value = "image", required = false) MultipartFile image) {
+        return ResponseEntity.ok(profileService.uploadProfileImage(uuid, image));
     }
 
     @Operation(

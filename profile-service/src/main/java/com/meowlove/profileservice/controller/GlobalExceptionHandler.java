@@ -1,10 +1,7 @@
 package com.meowlove.profileservice.controller;
 
 import com.meowlove.profileservice.exception.ErrorResponse;
-import com.meowlove.profileservice.exception.profile.ProfileNotFoundException;
-import com.meowlove.profileservice.exception.profile.ProfileValidationException;
-import com.meowlove.profileservice.exception.profile.UserIDNotUniqueException;
-import com.meowlove.profileservice.exception.profile.UsernameNotUniqueException;
+import com.meowlove.profileservice.exception.profile.*;
 import com.meowlove.profileservice.exception.security.MissingAuthHeadersException;
 import com.meowlove.profileservice.exception.security.PermissionDeniedException;
 import org.springframework.http.HttpStatus;
@@ -30,6 +27,7 @@ public class GlobalExceptionHandler {
     private final HttpStatus userIDNotUniqueStatus = HttpStatus.CONFLICT;
     private final HttpStatus httpMessageNotReadableStatus = HttpStatus.BAD_REQUEST;
     private final HttpStatus httpMediaTypeNotSupportedStatus = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+    private final HttpStatus uploadProfileImageStatus = HttpStatus.BAD_REQUEST;
 
     @ExceptionHandler(UsernameNotUniqueException.class)
     public ResponseEntity<ErrorResponse> handleUsernameNotUnique(UsernameNotUniqueException ex) {
@@ -145,6 +143,18 @@ public class GlobalExceptionHandler {
                 new ErrorResponse(
                         httpMediaTypeNotSupportedStatus.value(),
                         "Unsupported Media Type",
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                )
+        );
+    }
+
+    @ExceptionHandler(UploadProfileImageException.class)
+    public ResponseEntity<ErrorResponse> handleUploadProfileImage(UploadProfileImageException ex) {
+        return ResponseEntity.status(uploadProfileImageStatus).body(
+                new ErrorResponse(
+                        uploadProfileImageStatus.value(),
+                        "Image upload failed",
                         ex.getMessage(),
                         LocalDateTime.now()
                 )

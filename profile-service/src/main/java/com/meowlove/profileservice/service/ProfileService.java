@@ -1,7 +1,9 @@
 package com.meowlove.profileservice.service;
 
+import com.meowlove.profileservice.client.FileFeignClient;
 import com.meowlove.profileservice.dto.profile.*;
 import com.meowlove.profileservice.exception.profile.ProfileNotFoundException;
+import com.meowlove.profileservice.exception.profile.UploadProfileImageException;
 import com.meowlove.profileservice.exception.profile.UserIDNotUniqueException;
 import com.meowlove.profileservice.exception.profile.UsernameNotUniqueException;
 import com.meowlove.profileservice.exception.security.PermissionDeniedException;
@@ -13,7 +15,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.UUID;
 
 @Service
@@ -24,6 +28,7 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final SecurityService securityService;
     private final ModelMapper modelMapper;
+    private final FileFeignClient fileFeignClient;
 
     /// создание профиля (для сервиса аунтетификации)
     @Transactional
@@ -73,6 +78,36 @@ public class ProfileService {
         profile.setAge(updateProfileRequestDTO.getAge());
 
         return modelMapper.map(profileRepository.save(profile), UpdateProfileResponseDTO.class);
+    }
+
+    // обновление фотографии
+    @Transactional
+    public String uploadProfileImage(String uuid, MultipartFile image) {
+
+        if (image.isEmpty()) {
+            throw new UploadProfileImageException("The image is empty");
+        }
+
+        Profile profile = profileRepository.findProfileByProfileId(UUID.fromString(uuid)).orElseThrow(
+                () -> new ProfileNotFoundException("Profile not found")
+        );
+
+        verifyProfileOwner(profile.getUserId());
+
+        String photoLink = fileFeignClient.uploadMedia("profiles/profileImages",
+                Collections.singletonList(image).toArray(new MultipartFile[0])).getFirst();
+
+        String oldPhotoLink = profile.getPhotoLink();
+
+        if (oldPhotoLink != null) {
+            fileFeignClient.deleteMedia(Collections.singletonList(oldPhotoLink).toArray(new String[0]));
+        }
+
+        profile.setPhotoLink(photoLink);
+
+        profileRepository.save(profile);
+
+        return photoLink;
     }
 
     // удаление профиля

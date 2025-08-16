@@ -97,6 +97,25 @@ services:
     networks:
       - tripzy-network
 
+  file-service:
+    build:
+      context: ./file-service
+    container_name: file-service
+    environment:
+      SERVER_PORT: 8082
+      YANDEX_S3_ACCESS_KEY: ${ACCESS_KEY:-default-access-key}
+      YANDEX_S3_SECRET_KEY: ${SECRET_KEY:-default-secret-key}
+      YANDEX_S3_BUCKET: "tripzy-bucket"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+      EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
+      EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS: 10
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+    networks:
+      - tripzy-network
+
 networks:
   tripzy-network:
     driver: bridge
