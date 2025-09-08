@@ -29,10 +29,6 @@ public class JwtFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-//        response.setHeader("Access-Control-Allow-Origin", "*");
-//        response.setHeader("Access-Control-Allow-Origin", "null");
-//        response.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-
         String accessToken = getAccessTokenFromRequest(request);
 
         if (accessToken != null && jwtService.validateJwtToken(accessToken)) {
