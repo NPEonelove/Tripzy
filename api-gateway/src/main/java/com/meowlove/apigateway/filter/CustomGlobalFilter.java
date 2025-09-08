@@ -35,8 +35,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
         String accessToken = exchange.getRequest().getHeaders().getFirst("Authorization");
 
-        if (StringUtils.hasText(accessToken) &&
-                accessToken.startsWith("Bearer ")) {
+        if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
             accessToken = accessToken.substring(7);
             validateJwtToken(accessToken);
         } else {

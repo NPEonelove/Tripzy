@@ -32,10 +32,26 @@ services:
   revoked_tokens:
     image: redis
     container_name: revoked_tokens
+    networks:
+      - tripzy-network
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+
+  route_db:
+    image: mongo
+    container_name: route_db
+    environment:
+      MONGO_INITDB_DATABASE: "routes"
+      MONGO_INITDB_ROOT_USERNAME: "admin"
+      MONGO_INITDB_ROOT_PASSWORD: "123"
+    networks:
+      - tripzy-network
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
 
   eureka-server:
     build: ./eureka-server
@@ -124,3 +140,4 @@ volumes:
   postgres-profile-data:
   postgres-auth-data:
   redis-data:
+  mongo_data:
