@@ -2,12 +2,14 @@ package org.npeonelove.routeservice.dto.route;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.npeonelove.routeservice.model.Point;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
-public class CreateRouteResponseDTO {
+public class GetRouteResponseDTO {
 
     private String id;
     private String userId;
@@ -17,5 +19,6 @@ public class CreateRouteResponseDTO {
     private String description;
     private String previewPhotoLink;
     private Date createDate;
+    private List<Point> points;
 
 }

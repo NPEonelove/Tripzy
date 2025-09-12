@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class CreateRouteResponseDTO {
+public class UpdateRouteResponseDTO {
 
     private String id;
     private String userId;
