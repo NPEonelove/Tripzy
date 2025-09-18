@@ -1,6 +1,7 @@
 package org.npeonelove.routeservice.controller;
 
 import org.npeonelove.routeservice.exception.ErrorResponse;
+import org.npeonelove.routeservice.exception.point.PointValidationException;
 import org.npeonelove.routeservice.exception.route.RouteValidationException;
 import org.npeonelove.routeservice.exception.route.RouteNotFoundException;
 import org.npeonelove.routeservice.exception.security.PermissionDeniedException;
@@ -17,6 +18,7 @@ public class GlobalExceptionHandler {
     private final HttpStatus routeValidationStatus = HttpStatus.BAD_REQUEST;
     private final HttpStatus routeNotFoundStatus = HttpStatus.NOT_FOUND;
     private final HttpStatus permissionDeniedStatus = HttpStatus.UNAUTHORIZED;
+    private final HttpStatus pointValidationStatus = HttpStatus.BAD_REQUEST;
 
     @ExceptionHandler(RouteValidationException.class)
     public ResponseEntity<ErrorResponse> handleRouteValidation(RouteValidationException ex) {
@@ -48,6 +50,18 @@ public class GlobalExceptionHandler {
                 new ErrorResponse(
                         routeNotFoundStatus.value(),
                         "Route not found",
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                )
+        );
+    }
+
+    @ExceptionHandler(PointValidationException.class)
+    public ResponseEntity<ErrorResponse> handlePointValidation(PointValidationException ex) {
+        return ResponseEntity.status(pointValidationStatus).body(
+                new ErrorResponse(
+                        pointValidationStatus.value(),
+                        "Point validation conflict",
                         ex.getMessage(),
                         LocalDateTime.now()
                 )

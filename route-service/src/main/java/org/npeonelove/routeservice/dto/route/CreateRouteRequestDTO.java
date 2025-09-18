@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 public class CreateRouteRequestDTO {
 
-    private String userId;
     private String category;
     private String country;
     private String title;

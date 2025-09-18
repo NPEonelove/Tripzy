@@ -6,9 +6,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -45,5 +45,12 @@ public class Route {
 
     @Field("points")
     private List<Point> points;
+
+    public void addPoint(Point point) {
+        if (points == null) {
+            points = new ArrayList<Point>();
+        }
+        points.add(point);
+    }
 
 }

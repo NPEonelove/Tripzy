@@ -2,6 +2,8 @@ package org.npeonelove.routeservice.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.npeonelove.routeservice.dto.point.CreatePointRequestDTO;
+import org.npeonelove.routeservice.dto.point.CreatePointResponseDTO;
 import org.npeonelove.routeservice.dto.route.*;
 import org.npeonelove.routeservice.exception.route.RouteValidationException;
 import org.npeonelove.routeservice.service.RouteService;
@@ -51,6 +53,19 @@ public class RouteController {
     public ResponseEntity<String> deleteRoute(@PathVariable("uuid") String uuid) {
         return ResponseEntity.ok(routeService.deleteRoute(uuid));
     }
+
+    // добавление точки
+    @PostMapping("/{uuid}")
+    public ResponseEntity<CreatePointResponseDTO> createPoint(@PathVariable("uuid") String uuid,
+                                                              @RequestBody @Valid CreatePointRequestDTO createPointRequestDTO,
+                                                              BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new RouteValidationException(validateBindingResult(bindingResult));
+        }
+
+        return ResponseEntity.ok(routeService.addPoint(uuid, createPointRequestDTO));
+    }
+
 
     // получение строки с ошибками валидации для исключений
     private String validateBindingResult(BindingResult bindingResult) {

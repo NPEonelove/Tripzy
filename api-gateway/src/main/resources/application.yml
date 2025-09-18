@@ -35,6 +35,11 @@ spring:
               predicates:
                 - Path=/api/v1/files
 
+            - id: route-service
+              uri: lb://ROUTE-SERVICE
+              predicates:
+                - Path=/api/v1/routes/**
+
 
 eureka:
   client:
