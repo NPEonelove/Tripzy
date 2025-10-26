@@ -48,9 +48,29 @@ public class Route {
 
     public void addPoint(Point point) {
         if (points == null) {
-            points = new ArrayList<Point>();
+            points = new ArrayList<>();
         }
         points.add(point);
+    }
+
+    public void removePoint(String pointId) {
+        if (points != null) {
+            for (int i = 0; i < points.size(); i++) {
+                if (points.get(i).getId().equals(pointId)) {
+                    points.remove(i);
+                }
+            }
+        }
+    }
+
+    public Point getPoint(String pointId) {
+        if (points != null) {
+            for (int i = 0; i < points.size(); i++) {
+                if (points.get(i).getId().equals(pointId)) {
+                    return points.get(i);
+                }
+            }
+        }
     }
 
 }
