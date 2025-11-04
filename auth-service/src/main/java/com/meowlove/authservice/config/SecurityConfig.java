@@ -38,8 +38,7 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/api/v1/auth/sign-up",
                                 "/api/v1/auth/sign-in",
-                                "/api/v1/auth/refresh-access-token",
-                                "/api/v1/auth/test"
+                                "/api/v1/auth/refresh-access-token"
                         ).permitAll()
                         .requestMatchers("/api/v1/auth/change-password",
                                 "/api/v1/auth/sign-out").authenticated()

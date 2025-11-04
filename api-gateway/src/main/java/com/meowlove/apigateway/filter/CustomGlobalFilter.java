@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 
+@Slf4j
 @Component
 public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
@@ -28,8 +30,13 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         ServerHttpRequest request = exchange.getRequest();
+        String path = request.getPath().toString();
+        String method = request.getMethod().name();
 
-        if (request.getPath().toString().startsWith("/api/v1/auth")) {
+        log.debug("Request handled. Path: {}. Method: {}", path, method);
+
+        if (path.startsWith("/api/v1/auth")) {
+            log.debug("Skip JWT validation for auth endpoint: {}", path);
             return chain.filter(exchange);
         }
 
@@ -38,15 +45,24 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
             accessToken = accessToken.substring(7);
             validateJwtToken(accessToken);
+            log.debug("JWT token successfully validated. Path: {}. Method: {}", path, method);
         } else {
+            log.warn("Missing or invalid Authorization header - expected 'Bearer <token>'. Path: {}. Method: {}", path, method);
             throw new JwtException("Incorrect token");
         }
 
+        String userId = getUserIdFromJwtToken(accessToken);
+        String userRole = getUserRoleFromJwtToken(accessToken);
+
+        log.info("User successfully logged in. Path: {}. Method: {}. UserId: {}. Role: {}", path, method, userId, userRole);
+
         ServerHttpRequest modifiedRequest = request.mutate()
-                .header("X-User-Id", getUserIdFromJwtToken(accessToken))
+                .header("X-User-Id", userId)
                 .header("X-User-Role", "ROLE_" +
-                        getUserRoleFromJwtToken(accessToken))
+                        userRole)
                 .build();
+
+        log.debug("Modifying request headers. Path: {}. Method: {}", path, method);
 
         return chain.filter(exchange.mutate().request(modifiedRequest).build());
     }

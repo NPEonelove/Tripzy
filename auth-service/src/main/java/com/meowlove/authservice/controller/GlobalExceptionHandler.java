@@ -1,6 +1,7 @@
 package com.meowlove.authservice.controller;
 
 import com.meowlove.authservice.exception.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -29,6 +31,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
+        log.warn("Authentication exception: {}", ex.getMessage());
         return ResponseEntity.status(authenticationStatus).body(
                 new ErrorResponse(
                         authenticationStatus.value(),
@@ -41,6 +44,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUsernameNotFound(UsernameNotFoundException ex) {
+        log.warn("UsernameNotFoundException: {}", ex.getMessage());
         return ResponseEntity.status(usernameNotFoundStatus).body(
                 new ErrorResponse(
                         usernameNotFoundStatus.value(),
