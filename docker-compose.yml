@@ -40,18 +40,18 @@ services:
       - redis-data:/data
 
   route_db:
-    image: mongo
+    image: postgres
     container_name: route_db
     environment:
-      MONGO_INITDB_DATABASE: "routes"
-      MONGO_INITDB_ROOT_USERNAME: "admin"
-      MONGO_INITDB_ROOT_PASSWORD: "123"
+      POSTGRES_DB: "routes"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "1"
     networks:
       - tripzy-network
     ports:
-      - "27017:27017"
+      - "5434:5432"
     volumes:
-      - mongo_data:/data/db
+      - postgres-route-data:/var/lib/postgresql/data
 
   eureka-server:
     build: ./eureka-server
@@ -139,5 +139,6 @@ networks:
 volumes:
   postgres-profile-data:
   postgres-auth-data:
+  postgres-route-data:
   redis-data:
   mongo_data:
