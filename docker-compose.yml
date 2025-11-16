@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   profile_db:
-    image: postgres
+    image: postgres:15
     container_name: profile_db
     environment:
       POSTGRES_DB: "profiles"
@@ -16,7 +16,7 @@ services:
       - postgres-profile-data:/var/lib/postgresql/data
 
   auth_db:
-    image: postgres
+    image: postgres:15
     container_name: auth_db
     environment:
       POSTGRES_DB: "users"
@@ -39,98 +39,98 @@ services:
     volumes:
       - redis-data:/data
 
-  route_db:
-    image: mongo
-    container_name: route_db
-    environment:
-      MONGO_INITDB_DATABASE: "routes"
-      MONGO_INITDB_ROOT_USERNAME: "admin"
-      MONGO_INITDB_ROOT_PASSWORD: "123"
-    networks:
-      - tripzy-network
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
+#  route_db:
+#    image: mongo
+#    container_name: route_db
+#    environment:
+#      MONGO_INITDB_DATABASE: "routes"
+#      MONGO_INITDB_ROOT_USERNAME: "admin"
+#      MONGO_INITDB_ROOT_PASSWORD: "123"
+#    networks:
+#      - tripzy-network
+#    ports:
+#      - "27017:27017"
+#    volumes:
+#      - mongo_data:/data/db
 
-  eureka-server:
-    build: ./eureka-server
-    container_name: eureka-server
-    networks:
-      - tripzy-network
-    ports:
-      - "8761:8761"
+#  eureka-server:
+#    build: ./eureka-server
+#    container_name: eureka-server
+#    networks:
+#      - tripzy-network
+#    ports:
+#      - "8761:8761"
 
-  api-gateway:
-    build:
-      context: ./api-gateway
-    container_name: api-gateway
-    environment:
-      SERVER_PORT: 8080
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
-      JWT_SECRET_KEY: "s7k5n2x9r1v6y8w4z7u5i3o9l2p5n0x3r1v6y8w4z7u5i3o9l2p5n0x3"
-    ports:
-      - "8080:8080"
-    depends_on:
-      - eureka-server
-    networks:
-      - tripzy-network
-
-  auth-service:
-    build:
-      context: ./auth-service
-    container_name: auth-service
-    environment:
-      SERVER_PORT: 8084
-      JWT_SECRET_KEY: "s7k5n2x9r1v6y8w4z7u5i3o9l2p5n0x3r1v6y8w4z7u5i3o9l2p5n0x3"
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://auth_db:5432/users"
-      SPRING_DATASOURCE_USERNAME: "postgres"
-      SPRING_DATASOURCE_PASSWORD: "1"
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
-    ports:
-      - "8084:8084"
-    depends_on:
-      - auth_db
-      - eureka-server
-    networks:
-      - tripzy-network
-
-  profile-service:
-    build:
-      context: ./profile-service
-    container_name: profile-service
-    environment:
-      SERVER_PORT: 8083
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://profile_db:5432/profiles"
-      SPRING_DATASOURCE_USERNAME: "postgres"
-      SPRING_DATASOURCE_PASSWORD: "1"
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
-    ports:
-      - "8083:8083"
-    depends_on:
-      - profile_db
-      - eureka-server
-    networks:
-      - tripzy-network
-
-  file-service:
-    build:
-      context: ./file-service
-    container_name: file-service
-    environment:
-      SERVER_PORT: 8082
-      YANDEX_S3_ACCESS_KEY: ${ACCESS_KEY:-default-access-key}
-      YANDEX_S3_SECRET_KEY: ${SECRET_KEY:-default-secret-key}
-      YANDEX_S3_BUCKET: "tripzy-bucket"
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
-      EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
-      EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS: 10
-    ports:
-      - "8082:8082"
-    depends_on:
-      - eureka-server
-    networks:
-      - tripzy-network
+#  api-gateway:
+#    build:
+#      context: ./api-gateway
+#    container_name: api-gateway
+#    environment:
+#      SERVER_PORT: 8080
+#      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+#      JWT_SECRET_KEY: "s7k5n2x9r1v6y8w4z7u5i3o9l2p5n0x3r1v6y8w4z7u5i3o9l2p5n0x3"
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - eureka-server
+#    networks:
+#      - tripzy-network
+#
+#  auth-service:
+#    build:
+#      context: ./auth-service
+#    container_name: auth-service
+#    environment:
+#      SERVER_PORT: 8084
+#      JWT_SECRET_KEY: "s7k5n2x9r1v6y8w4z7u5i3o9l2p5n0x3r1v6y8w4z7u5i3o9l2p5n0x3"
+#      SPRING_DATASOURCE_URL: "jdbc:postgresql://auth_db:5432/users"
+#      SPRING_DATASOURCE_USERNAME: "postgres"
+#      SPRING_DATASOURCE_PASSWORD: "1"
+#      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+#    ports:
+#      - "8084:8084"
+#    depends_on:
+#      - auth_db
+#      - eureka-server
+#    networks:
+#      - tripzy-network
+#
+#  profile-service:
+#    build:
+#      context: ./profile-service
+#    container_name: profile-service
+#    environment:
+#      SERVER_PORT: 8083
+#      SPRING_DATASOURCE_URL: "jdbc:postgresql://profile_db:5432/profiles"
+#      SPRING_DATASOURCE_USERNAME: "postgres"
+#      SPRING_DATASOURCE_PASSWORD: "1"
+#      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+#    ports:
+#      - "8083:8083"
+#    depends_on:
+#      - profile_db
+#      - eureka-server
+#    networks:
+#      - tripzy-network
+#
+#  file-service:
+#    build:
+#      context: ./file-service
+#    container_name: file-service
+#    environment:
+#      SERVER_PORT: 8082
+#      YANDEX_S3_ACCESS_KEY: ${ACCESS_KEY:-default-access-key}
+#      YANDEX_S3_SECRET_KEY: ${SECRET_KEY:-default-secret-key}
+#      YANDEX_S3_BUCKET: "tripzy-bucket"
+#      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+#      EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
+#      EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS: 10
+#    ports:
+#      - "8082:8082"
+#    depends_on:
+#      - eureka-server
+#    networks:
+#      - tripzy-network
 
 networks:
   tripzy-network:
@@ -140,4 +140,4 @@ volumes:
   postgres-profile-data:
   postgres-auth-data:
   redis-data:
-  mongo_data:
+#  mongo_data:
