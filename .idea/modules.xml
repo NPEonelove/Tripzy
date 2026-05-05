@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Tripzy.iml" filepath="$PROJECT_DIR$/.idea/Tripzy.iml" />
-      <module fileurl="file://$PROJECT_DIR$/route-service/route-service.iml" filepath="$PROJECT_DIR$/route-service/route-service.iml" />
     </modules>
   </component>
 </project>

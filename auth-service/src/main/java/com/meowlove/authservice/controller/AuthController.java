@@ -89,6 +89,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.changePassword(changePasswordRequestDTO));
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("test");
+    }
+
     // получение строки с ошибками валидации для исключений
     private StringBuilder validateBindingResult(BindingResult bindingResult) {
         StringBuilder errors = new StringBuilder();
