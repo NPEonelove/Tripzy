@@ -4,6 +4,6 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests=true
 
-FROM eclipse-temurin:21-jre
+FROM openjdk:21
 COPY --from=build /app/target/*.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]

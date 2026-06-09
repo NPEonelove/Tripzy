@@ -4,7 +4,8 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests=true
 
-FROM eclipse-temurin:21-jre
+# Этап выполнения (runtime stage)
+FROM openjdk:21
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
